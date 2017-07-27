@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.test.mapper.RoleMapper">
+    <!-- 添加角色 -->
+    <insert id="addRole" useGeneratedKeys="true" keyProperty="roleId" 
+        parameterType="Role">
+        INSERT INTO auth_role(vRoleName,vRoleDesc,vRoleCode) 
+        	VALUES(#{roleName},#{roleDesc},#{roleCode}) 
+    </insert>
+    <!-- 删除角色 -->
+    <delete id="deleteRole" parameterType="long">
+        DELETE FROM auth_role 
+        	WHERE bRoleId = #{_parameter}
+    </delete>
+    <!-- 角色实体结果映射 -->
+    <resultMap type="Role" id="roleResult">
+        <id property="roleId" column="bRoleId"/>
+        <result property="roleName" column="vRoleName"/>
+        <result property="roleDesc" column="vRoleDesc"/>
+        <result property="roleCode" column="vRoleCode"/>
+    </resultMap>
+    <!-- 根据id查询角色信息 -->
+    <select id="findById" parameterType="long" resultMap="roleResult">
+        SELECT * FROM auth_role 
+        	WHERE bRoleId = #{_parameter}
+    </select>
+    <!-- 根据用户名查询相应角色 -->
+    <select id="findRolesByUserName" parameterType="Role" 
+        resultMap="roleResult">
+        SELECT r.* FROM auth_user u,auth_user_role ur,auth_role  r 
+        	WHERE u.vUserName = #{_parameter} 
+        		AND u.bUserId = ur.bUserId 
+        			AND ur.bRoleId = r.bRoleId
+    </select>
+    <!-- 查询所有角色 -->
+    <select id="findAllRoles"
+         resultMap="roleResult">
+        SELECT * FROM auth_role
+    </select>
+    <!-- 更新角色 -->
+    <update id="updateRole" parameterType="Role">
+        UPDATE auth_role SET
+        	vRoleName = #{roleName},
+        	vRoleDesc = #{roleDesc},
+        	vRoleCode = #{roleCode}
+        		WHERE bRoleId = #{roleId}
+    </update>
+    <!-- 删除用户角色关联 -->
+    <delete id="deleteUserRole" parameterType="long">
+        DELETE FROM auth_user_role 
+        	WHERE bRoleId = #{_parameter}
+    </delete>
+    <!-- 删除角色权限关联 -->
+    <delete id="deleteRolePermission" parameterType="long">
+        DELETE FROM auth_role_permission 
+        	WHERE bRoleId = #{_parameter}
+    </delete>
+    <!-- 添加角色权限关联 -->
+    <insert id="addRolePermission" parameterType="RolePermission">
+        INSERT INTO auth_role_permission(bRoleId,bPermissionId) 
+        	VALUES(#{roleId},#{permissionId})
+    </insert>
+</mapper>

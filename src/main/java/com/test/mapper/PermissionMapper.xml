@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.test.mapper.PermissionMapper">
+    <!-- 添加权限 -->
+    <insert id="addPermission" useGeneratedKeys="true" keyProperty="permissionId"
+         parameterType="Permission">
+        INSERT INTO auth_permission(vPermissionDesc,vUrl,tIsNavi,vPermissionCode) 
+        	VALUES(#{permissionDesc},#{url},#{isNavi},#{permissionCode})
+    </insert>
+    <!-- 删除权限 -->
+    <delete id="deletePermission" parameterType="long">
+        DELETE FROM auth_permission 
+        	WHERE bPermissionId = #{_parameter}
+    </delete>
+    <!--权限实体结果映射 -->
+    <resultMap type="Permission" id="permissionResult">
+        <id property="permissionId" column="bPermissionId"/>
+        <result property="permissionDesc" column="vPermissionDesc"/>
+        <result property="url" column="vUrl"/>
+        <result property="isNavi" column="tIsNavi"/>
+        <result property="permissionCode" column="vPermissionCode"/>
+    </resultMap>
+    <!-- 根据id查询权限信息 -->
+    <select id="findById" parameterType="long" 
+        resultMap="permissionResult">
+        SELECT * FROM auth_permission 
+        	WHERE bPermissionId = #{_parameter}
+    </select>
+    <!-- 根据角色id查询所有权限 -->
+    <select id="findPermissionsByRoleId" parameterType="long" 
+        resultMap="permissionResult">
+        SELECT p.* FROM auth_role_permission rp,auth_permission p
+        		WHERE rp.bRoleId = #{_parameter} 
+        			AND rp.bPermissionId = p.bPermissionId 
+    </select>
+    <!-- 根据角色id查询所有导航结点 -->
+    <select id="findNavisByRoleId" parameterType="long" 
+        resultMap="permissionResult">
+        SELECT p.* FROM auth_role_permission rp,auth_permission p
+        		WHERE rp.bRoleId = #{_parameter} 
+        			AND rp.bPermissionId = p.bPermissionId 
+        				AND p.tIsNavi = 1
+    </select>
+    <!-- 查询所有权限 -->
+    <select id="findAllPermissions" 
+        resultMap="permissionResult">
+        SELECT * FROM auth_permission
+    </select>
+    <!-- 更新权限-->
+    <update id="updatePermission" parameterType="Permission">
+        UPDATE auth_permission SET 
+        	vPermissionDesc = #{permissionDesc},
+        	vUrl = #{url},
+        	tIsNavi = #{isNavi},
+        	vPermissionCode = #{permissionCode} 
+        		WHERE bPermissionId = #{permissionId}
+    </update>
+    <!-- 删除角色权限关联 -->
+    <delete id="deleteRolePermission" parameterType="long">
+        DELETE FROM auth_role_permission 
+        	WHERE bPermissionId = #{_parameter}
+    </delete>
+</mapper>

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.test.mapper.UserMapper">
+    <!-- 添加用户 -->
+    <insert id="addUser" useGeneratedKeys="true" keyProperty="userId" 
+        parameterType="User">
+        INSERT INTO auth_user(vUserName,cPassword,cPasswordSalt) 
+        	VALUES(#{userName},#{password},#{passwordSalt})
+    </insert>
+    <!-- 删除用户 -->
+    <delete id="deleteUser" parameterType="long">
+        DELETE FROM auth_user WHERE bUserId = #{_parameter}
+    </delete>
+    <!-- 用户实体结果映射 -->
+    <resultMap type="User" id="userResult">
+        <id property="userId" column="bUserId"/>
+        <result property="userName" column="vUserName"/>
+        <result property="password" column="cPassword"/>
+        <result property="passwordSalt" column="cPasswordSalt"/>
+    </resultMap>
+    <!--根据名字查询用户-->
+    <select id="findUserByUserName" parameterType="string" 
+        resultMap="userResult">
+        SELECT * FROM auth_user 
+        	WHERE vUserName = #{_parameter}
+    </select>
+    <!-- 查询所有用户 -->
+    <select id="findAllUsers" 
+        resultMap="userResult">
+        SELECT * FROM auth_user 
+    </select>
+    <!-- 删除用户角色关联 -->
+    <delete id="deleteUserRole" parameterType="long">
+        DELETE FROM auth_user_role 
+        	WHERE bUserId = #{_parameter}
+    </delete>
+    <!-- 添加用户角色关联 -->
+    <insert id="addUserRole" parameterType="UserRole">
+        INSERT INTO auth_user_role(bUserId,bRoleId) 
+        	VALUES(#{userId},#{roleId})
+    </insert>
+    <!-- 根据用户名字查询相应角色 -->
+    <select id="findRolesByUserName" parameterType="string" resultType="string">
+        SELECT r.vRoleCode 
+	        FROM auth_user u,auth_role r,auth_user_role ur 
+	        	WHERE u.vUserName = #{_parameter} 
+	        		AND u.bUserId = ur.bUserId 
+	        			AND ur.bRoleId = r.bRoleId
+    </select>
+    <!-- 根据用户名字查询相应权限 -->
+    <select id="findPermissionsByUserName" parameterType="string" resultType="string">
+        SELECT p.vPermissionCode 
+        	FROM auth_user u,auth_role r,auth_user_role ur,auth_permission p,auth_role_permission rp 
+        		WHERE u.vUserName = #{_parameter} 
+        			AND u.bUserId = ur.bUserId 
+	        			AND ur.bRoleId = r.bRoleId 
+	        				AND r.bRoleId = rp.bRoleId 
+	        					AND rp.bPermissionId = p.bPermissionId 
+    </select>
+</mapper>
