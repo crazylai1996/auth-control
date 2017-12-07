@@ -4,3 +4,6 @@
 src/main/java/config/**:相关配置文件目录
 doc/auth_test.sql:数据库脚本
 
+登录名：adimn
+密码：admin
+
